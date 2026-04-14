@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shopping Cart</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        .card {
+            transition: 0.3s;
+        }
+        .card:hover {
+            transform: scale(1.05);
+        }
+        .navbar {
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-dark bg-dark px-4">
+    <h4 class="text-white">🛒 ShopEasy</h4>
+
+    <input type="text" id="search" class="form-control w-25" placeholder="Search..." onkeyup="searchProducts()">
+
+    <div class="text-white">
+        📍 <span id="location-text">Location</span>
+        <button class="btn btn-warning btn-sm" onclick="getLocation()">Set</button>
+    </div>
+
+    <div>
+        <button class="btn btn-success" onclick="buyNow()">Buy Now</button>
+        <span class="badge bg-danger" id="cart-count">0</span>
+    </div>
+</nav>
+
+<div class="container mt-4">
+
+    <!-- Cart Section -->
+    <h3 class="text-white">🛒 Cart</h3>
+    <div class="row" id="cart"></div>
+    <h4 class="text-white mt-3">Total: ₹<span id="total">0</span></h4>
+
+    <!-- Products -->
+    <h3 class="text-white mt-5">Products</h3>
+    <div class="row" id="product-list"></div>
+
+</div>
+
+<script>
+const products = [
+    { id: 1, name: "Shoes", price: 1000, image: "shoes.jpg" },
+    { id: 2, name: "Shirt", price: 500, image: "shirt.jpg" },
+    { id: 3, name: "Watch", price: 1000, image: "rolex.jpg" },
+    { id: 4, name: "Bag", price: 800, image: "bag.jpg" }
+];
+
+let cart = [];
+
+function displayProducts() {
+    const productList = document.getElementById("product-list");
+    productList.innerHTML = "";
+
+    products.forEach(product => {
+        productList.innerHTML += `
+        <div class="col-md-3 mb-4">
+            <div class="card p-3 text-center">
+                <img src="${product.image}" class="img-fluid" height="150">
+                <h5>${product.name}</h5>
+                <p>₹${product.price}</p>
+                <button class="btn btn-primary" onclick="addToCart(${product.id})">Add</button>
+            </div>
+        </div>`;
+    });
+}
+
+function addToCart(id) {
+    const product = products.find(p => p.id === id);
+    cart.push(product);
+    displayCart();
+}
+
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    displayCart();
+}
+
+function displayCart() {
+    const cartDiv = document.getElementById("cart");
+    const totalSpan = document.getElementById("total");
+
+    cartDiv.innerHTML = "";
+    let total = 0;
+
+    cart.forEach((item, index) => {
+        total += item.price;
+
+        cartDiv.innerHTML += `
+        <div class="col-md-3 mb-3">
+            <div class="card p-2 text-center">
+                <img src="${item.image}" class="img-fluid" height="80">
+                <h6>${item.name}</h6>
+                <p>₹${item.price}</p>
+                <button class="btn btn-danger btn-sm" onclick="removeFromCart(${index})">Remove</button>
+            </div>
+        </div>`;
+    });
+
+    totalSpan.innerText = total;
+    document.getElementById("cart-count").innerText = cart.length;
+}
+
+function buyNow() {
+    if (cart.length === 0) {
+        alert("Cart is empty!");
+        return;
+    }
+
+    alert("Order placed successfully 🎉");
+    cart = [];
+    displayCart();
+}
+
+function searchProducts() {
+    const value = document.getElementById("search").value.toLowerCase();
+    const filtered = products.filter(p => p.name.toLowerCase().includes(value));
+
+    const productList = document.getElementById("product-list");
+    productList.innerHTML = "";
+
+    filtered.forEach(product => {
+        productList.innerHTML += `
+        <div class="col-md-3 mb-4">
+            <div class="card p-3 text-center">
+                <img src="${product.image}" class="img-fluid">
+                <h5>${product.name}</h5>
+                <p>₹${product.price}</p>
+                <button class="btn btn-primary" onclick="addToCart(${product.id})">Add</button>
+            </div>
+        </div>`;
+    });
+}
+
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            document.getElementById("location-text").innerText =
+                pos.coords.latitude.toFixed(2) + ", " + pos.coords.longitude.toFixed(2);
+        });
+    }
+}
+
+displayProducts();
+</script>
+
+</body>
+</html>
