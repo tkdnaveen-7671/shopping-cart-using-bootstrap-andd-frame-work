@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shopping Cart</title>
+    <style>
+        body {
+    font-family: Arial;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    margin: 0;
+    padding: 20px;
+}
+.product, .cart-item {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+    padding: 15px;
+    border-radius: 15px;
+    width: 200px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+} 
+        h1 {
+            text-align: center;
+        }
+        .products, .cart {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        button {
+            background: green;
+            color: white;
+            border: none;
+            padding: 8px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .cart {
+            margin-top: 30px;
+        }
+        .remove {
+            background: red;
+        }
+        .cart-item img {
+    display: block;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 15px;
+    border-radius: 15px;
+}
+
+.logo {
+    margin: 0;
+}
+
+#search {
+    padding: 8px;
+    width: 250px;
+    border-radius: 5px;
+    border: none;
+}
+
+.location button {
+    margin-left: 5px;
+    padding: 5px 10px;
+    border: none;
+    background: orange;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.product:hover {
+    transform: scale(1.05);
+    transition: 0.3s;
+}
+    </style>
+</head>
+<body>
+
+<h1>🛒 Online Shopping Cart</h1>
+<div class="header">
+    <h2 class="logo">🛒 ShopEasy</h2>
+
+    <input type="text" id="search" placeholder="Search products..." onkeyup="searchProducts()">
+
+    <div class="location">
+        📍 <span id="location-text">Select Location</span>
+        <button onclick="getLocation()">Set</button>
+    </div>
+    <button onclick="buyNow()">Buy Now</button>
+    <span id="cart-count">🛒 0</span>
+</div>
+
+
+
+<h2>Cart</h2>
+<div class="cart" id="cart"></div>
+
+<h3>Total: ₹<span id="total">0</span></h3>
+<div class="products" id="product-list" ></div>
+
+<script>
+const products = [
+    { id: 1, name: "Shoes", price: 1000, image: "shoes.jpg" },
+    { id: 2, name: "Shirt", price: 500, image: "shirt.jpg" },
+    { id: 3, name: "Watch", price: 1000, image: "rolex.jpg" },
+    { id: 4, name: "Bag", price: 800, image: "bag.jpg" }
+];
+    let cart = [];
+
+    function displayProducts() {
+        const productList = document.getElementById("product-list");
+        productList.innerHTML = "";
+        products.forEach(product => {
+          productList.innerHTML += `
+    <div class="product">
+        <img src="${product.image}" width="150" height="150">
+        <h3>${product.name}</h3>
+        <p>Price: ₹${product.price}</p>
+        <button onclick="addToCart(${product.id})">Add to Cart</button>
+    </div>
+`;
+        });
+    }
+
+    function addToCart(id) {
+        const product = products.find(p => p.id === id);
+        cart.push(product);
+        displayCart();
+    }
+
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        displayCart();
+    }
+
+    function displayCart() {
+        document.getElementById("cart-count").innerText = "🛒 " + cart.length;
+        const cartDiv = document.getElementById("cart");
+        const totalSpan = document.getElementById("total");
+        cartDiv.innerHTML = "";
+        let total = 0;
+
+        cart.forEach((item, index) => {
+            total += item.price;
+            cartDiv.innerHTML += `
+              <div class="cart-item">
+        <img src="${item.image}" width="80" height="80">
+        <h4>${item.name}</h4>
+        <p>₹${item.price}</p>
+        <button class="remove" onclick="removeFromCart(${index})">Remove</button>
+    </div>
+`;
+        });
+
+        totalSpan.innerText = total;
+        
+    }
+    function buyNow() {
+    if (cart.length === 0) {
+        alert("Your cart is empty!");
+        return;
+    }
+
+    alert("Order placed successfully! 🎉");
+
+    cart = [];
+    displayCart();
+}
+
+displayProducts();
+function searchProducts() {
+    const searchValue = document.getElementById("search").value.toLowerCase();
+    const filteredProducts = products.filter(product =>
+        product.name.toLowerCase().includes(searchValue)
+    );
+
+    const productList = document.getElementById("product-list");
+    productList.innerHTML = "";
+
+    filteredProducts.forEach(product => {
+        productList.innerHTML += `
+            <div class="product">
+                <img src="${product.image}" width="150" height="150">
+                <h3>${product.name}</h3>
+                <p>Price: ₹${product.price}</p>
+                <button onclick="addToCart(${product.id})">Add to Cart</button>
+            </div>
+        `;
+    });
+}
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+            document.getElementById("location-text").innerText = 
+                "Lat: " + position.coords.latitude.toFixed(2) + 
+                ", Lon: " + position.coords.longitude.toFixed(2);
+        });
+    } else {
+        alert("Geolocation not supported");
+    }
+}
+document.getElementById("cart-count").innerText = "🛒 " + cart.length;
+
+</script>
+
+</body>
+</html>
